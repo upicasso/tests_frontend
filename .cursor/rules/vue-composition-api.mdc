@@ -1,0 +1,80 @@
+---
+description: Always use the Composition API with `<script setup>` for new Vue components
+globs: **/*.vue
+alwaysApply: false
+---
+
+# Vue: Composition API only
+
+All new Vue single-file components MUST use the Composition API with
+`<script setup lang="ts">`. Do not use the Options API (`data()`, `methods`,
+`computed`, `watch`, `mounted`, etc.) in new code.
+
+## Rules
+
+- Use `<script setup lang="ts">` — no `export default { ... }` blocks.
+- Reactive state: `ref`, `reactive`, `computed`, `watch`, `watchEffect`.
+- Component props: `defineProps<{...}>()` (type-based, no runtime declarations).
+- Events: `defineEmits<{...}>()`.
+- Two-way binding: `defineModel<T>()` over manual `modelValue` + `update:modelValue`.
+- Lifecycle: `onMounted`, `onUnmounted`, etc. — never `mounted()` / `beforeDestroy()`.
+- Extract reusable stateful logic into `src/composables/useX.ts`.
+- Keep `<template>` first and `<style>` last is fine, but `<script setup>` must
+  be present in every new SFC.
+
+## Examples
+
+### Good
+
+```vue
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+
+const props = defineProps<{ initial?: number }>()
+const emit = defineEmits<{ change: [value: number] }>()
+
+const count = ref(props.initial ?? 0)
+const doubled = computed(() => count.value * 2)
+
+function increment() {
+  count.value += 1
+  emit('change', count.value)
+}
+</script>
+
+<template>
+  <button type="button" @click="increment">{{ count }} (×2 = {{ doubled }})</button>
+</template>
+```
+
+### Bad — Options API (do not use for new components)
+
+```vue
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  props: { initial: { type: Number, default: 0 } },
+  data() {
+    return { count: this.initial }
+  },
+  computed: {
+    doubled() {
+      return this.count * 2
+    },
+  },
+  methods: {
+    increment() {
+      this.count += 1
+      this.$emit('change', this.count)
+    },
+  },
+})
+</script>
+```
+
+## When editing existing Options-API components
+
+If a file already uses the Options API, prefer migrating it to `<script setup>`
+when making non-trivial changes; for tiny fixes, match the existing style and
+note that a follow-up migration is desirable.

@@ -34,6 +34,14 @@ function logout() {
         >
           Tests
         </RouterLink>
+        <RouterLink
+          v-if="auth.isAuthenticated.value"
+          to="/attempts"
+          class="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          active-class="bg-slate-900 text-white hover:bg-slate-900 hover:text-white"
+        >
+          My attempts
+        </RouterLink>
         <template v-if="auth.isAuthenticated.value">
           <n-text class="hidden px-2 sm:inline">{{ displayName }}</n-text>
           <n-button quaternary size="small" @click="logout">Sign out</n-button>

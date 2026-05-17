@@ -13,10 +13,16 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Tests' },
       },
       {
+        path: 'attempts',
+        name: 'attempts',
+        component: () => import('@/views/AttemptsListView.vue'),
+        meta: { title: 'My attempts', requiresAuth: true },
+      },
+      {
         path: 'tests/:testId',
         name: 'test-take',
         component: () => import('@/views/TestTakeView.vue'),
-        meta: { title: 'Take test' },
+        meta: { title: 'Take test', requiresAuth: true },
       },
     ],
   },
@@ -59,8 +65,16 @@ router.beforeEach(async (to) => {
   if (!auth.initialized.value) {
     await auth.init()
   }
+
   if (to.meta.guestOnly && auth.isAuthenticated.value) {
     return { name: 'tests' }
+  }
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated.value) {
+    return {
+      name: 'login',
+      query: { redirect: to.fullPath },
+    }
   }
 })
 

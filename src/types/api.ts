@@ -82,14 +82,67 @@ export interface RegisterUserRequest {
   picture?: string | null
 }
 
+export type TestAttemptStatus = 'started' | 'finished'
+
+export interface UserTestAttemptAttributes {
+  testId: number
+  status: TestAttemptStatus
+  startedAt: string
+}
+
+export type UserTestAttemptResource = JsonApiResource<
+  'user-test-attempts',
+  UserTestAttemptAttributes
+>
+
+export interface UserTestAttemptsListResponse {
+  data: UserTestAttemptResource[]
+  meta: { pagination: PaginationMeta }
+}
+
+export interface GetUserTestAttemptsParams {
+  page?: number
+  limit?: number
+  testId?: number
+  status?: TestAttemptStatus
+  startedFrom?: string
+  startedTo?: string
+}
+
+export interface StartUserTestAttemptRequest {
+  testId: number
+}
+
+export interface UserTestAttemptCreated {
+  id: number
+  testId: number
+  userId: number
+  status: TestAttemptStatus
+  startedAt: string
+}
+
+export interface UserAnswerAttributes {
+  questionId: number
+  answerId: number
+  isCorrect: boolean
+  createdAt: string
+}
+
+export type UserAnswerResource = JsonApiResource<'user-answers', UserAnswerAttributes>
+
+export interface UserAnswersListResponse {
+  data: UserAnswerResource[]
+}
+
 export interface CreateUserAnswerRequest {
+  userTestAttemptId: number
   questionId: number
   answerId: number
 }
 
 export interface UserAnswerCreated {
   id: number
-  userId: number
+  userTestAttemptId: number
   questionId: number
   answerId: number
   isCorrect: boolean
@@ -114,7 +167,7 @@ export interface GetTestsParams {
   createdTo?: string
 }
 
-/** Answer option shown in the UI (correctness hidden until after submit). */
+/** Answer option shown in the UI (`isCorrect` stripped before display). */
 export interface AnswerOption {
   id: number
   text: string

@@ -1,44 +1,50 @@
-# Tests Frontend
+# Interview Tests Frontend
 
-A Vue 3 + Vite + TypeScript + Tailwind CSS v4 + Vue Router SPA skeleton, built
-around the **Composition API** with `<script setup>`.
+Vue 3 SPA for browsing interview tests and submitting answers via the Symfony API at `symfony.test`.
 
 ## Stack
 
-- [Vue 3](https://vuejs.org/) (Composition API, `<script setup>`)
-- [Vite 6](https://vitejs.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS v4](https://tailwindcss.com/) (via `@tailwindcss/vite`)
-- [Vue Router 4](https://router.vuejs.org/) (lazy-loaded routes)
+- Vue 3 (Composition API, `<script setup>`)
+- Vite 6, TypeScript, Tailwind CSS v4
+- Vue Router 4, [Naive UI](https://www.naiveui.com/)
+
+## API flow
+
+1. `GET /api/tests` — browse tests (public)
+2. `POST /api/login` / `POST /api/register` — JWT authentication
+3. `GET /api/user-test-attempts` — list your attempts (filters: `testId`, `status`, dates)
+4. `POST /api/user-test-attempts` — start an attempt (`{ testId }`); blocked while another is `started`
+5. `POST /api/user-test-attempts/{id}/finish` — mark attempt as `finished` (required before starting another)
+6. `GET /api/tests/{id}/questions` and `…/answers` — load content
+7. `GET /api/user-test-attempts/{id}/user-answers` — answers already submitted for an attempt
+8. `POST /api/user-answers` — submit `{ userTestAttemptId, questionId, answerId }`
+
+OpenAPI: `http://symfony.test/api/doc.json`
 
 ## Project structure
 
 ```
 src/
-  assets/            # static assets (images, fonts)
-  components/        # reusable presentational components
-  composables/       # reusable Composition API hooks (use*)
-  layouts/           # route layout shells
-  router/            # vue-router setup and route definitions
-  views/             # route-level "page" components
-  App.vue            # root component
-  main.ts            # app bootstrap
-  style.css          # tailwind + global styles
+  api/           # HTTP client and endpoint modules
+  composables/   # useAuth, useTestSession
+  components/    # App shell (header, sidebar, footer)
+  layouts/       # DefaultLayout, AuthLayout
+  router/
+  types/         # API TypeScript types
+  views/         # Route pages
 ```
 
-## Scripts
+## Development
 
 ```bash
-npm install      # install dependencies
-npm run dev      # start dev server on :5173
-npm run build    # type-check + production build
-npm run preview  # preview production build
-npm run type-check
+npm install
+npm run dev      # http://localhost:5173 — proxies /api → symfony.test
 ```
 
-## Conventions
+Backend fixtures (in `tests_docker/app`):
 
-- **Composition API only** for new components (`<script setup lang="ts">`).
-  See `.cursor/rules/vue-composition-api.mdc` for the enforced rule.
-- Extract reusable stateful logic into `src/composables/useX.ts`.
-- Use the `@/` alias for imports from `src/`.
+```bash
+php bin/console doctrine:fixtures:load
+```
+
+Demo user: `alice@demo.local` / `password123`

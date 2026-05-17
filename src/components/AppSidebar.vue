@@ -8,7 +8,10 @@ const auth = useAuth()
 const sections = computed(() => [
   {
     title: 'Tests',
-    items: [{ to: '/', label: 'Browse tests' }],
+    items: [
+      { to: '/', label: 'Browse tests' },
+      ...(auth.isAuthenticated.value ? [{ to: '/attempts', label: 'My attempts' }] : []),
+    ],
   },
   {
     title: 'Account',

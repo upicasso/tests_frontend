@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -7,21 +8,33 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        name: 'home',
-        component: () => import('@/views/HomeView.vue'),
-        meta: { title: 'Home' },
+        name: 'tests',
+        component: () => import('@/views/TestsListView.vue'),
+        meta: { title: 'Tests' },
       },
       {
-        path: 'dashboard',
-        name: 'dashboard',
-        component: () => import('@/views/DashboardView.vue'),
-        meta: { title: 'Dashboard' },
+        path: 'tests/:testId',
+        name: 'test-take',
+        component: () => import('@/views/TestTakeView.vue'),
+        meta: { title: 'Take test' },
+      },
+    ],
+  },
+  {
+    path: '/',
+    component: () => import('@/layouts/AuthLayout.vue'),
+    children: [
+      {
+        path: 'login',
+        name: 'login',
+        component: () => import('@/views/LoginView.vue'),
+        meta: { title: 'Sign in', guestOnly: true },
       },
       {
-        path: 'about',
-        name: 'about',
-        component: () => import('@/views/AboutView.vue'),
-        meta: { title: 'About' },
+        path: 'register',
+        name: 'register',
+        component: () => import('@/views/RegisterView.vue'),
+        meta: { title: 'Register', guestOnly: true },
       },
     ],
   },
@@ -41,7 +54,17 @@ export const router = createRouter({
   },
 })
 
+router.beforeEach(async (to) => {
+  const auth = useAuth()
+  if (!auth.initialized.value) {
+    await auth.init()
+  }
+  if (to.meta.guestOnly && auth.isAuthenticated.value) {
+    return { name: 'tests' }
+  }
+})
+
 router.afterEach((to) => {
   const title = (to.meta.title as string | undefined) ?? 'App'
-  document.title = `${title} · Tests Frontend`
+  document.title = `${title} · Interview Tests`
 })

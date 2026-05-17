@@ -1,29 +1,38 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
-const sections = [
+const auth = useAuth()
+
+const sections = computed(() => [
   {
-    title: 'Workspace',
-    items: [
-      { to: '/', label: 'Overview' },
-      { to: '/dashboard', label: 'Dashboard' },
-    ],
+    title: 'Tests',
+    items: [{ to: '/', label: 'Browse tests' }],
   },
   {
-    title: 'Project',
-    items: [{ to: '/about', label: 'About' }],
+    title: 'Account',
+    items: auth.isAuthenticated.value
+      ? []
+      : [
+          { to: '/login', label: 'Sign in' },
+          { to: '/register', label: 'Register' },
+        ],
   },
-] as const
+])
 </script>
 
 <template>
   <aside class="w-60 shrink-0 border-r border-slate-200 bg-white px-4 py-6">
     <nav class="space-y-6 text-sm">
       <div v-for="section in sections" :key="section.title">
-        <p class="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        <p
+          v-if="section.items.length"
+          class="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-400"
+        >
           {{ section.title }}
         </p>
-        <ul class="space-y-0.5">
+        <ul v-if="section.items.length" class="space-y-0.5">
           <li v-for="item in section.items" :key="item.to">
             <RouterLink
               :to="item.to"
@@ -34,6 +43,10 @@ const sections = [
             </RouterLink>
           </li>
         </ul>
+      </div>
+      <div v-if="auth.isAuthenticated.value" class="px-2">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Signed in</p>
+        <p class="mt-1 text-slate-700">{{ auth.user.value?.email }}</p>
       </div>
     </nav>
   </aside>

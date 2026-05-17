@@ -1,0 +1,78 @@
+---
+description: Use Naive UI components for all new UI in Vue features
+globs: **/*.{vue,ts}
+alwaysApply: true
+---
+
+# UI: Naive UI
+
+All new UI work MUST use [Naive UI](https://www.naiveui.com/) components. Do not
+introduce raw HTML form controls, ad-hoc modals, or other component libraries for
+new features.
+
+## Setup (already configured)
+
+- Package: `naive-ui`
+- Auto-import: `unplugin-vue-components` + `NaiveUiResolver` in `vite.config.ts`
+- Composables auto-imported: `useMessage`, `useDialog`, `useNotification`,
+  `useLoadingBar`
+- Root providers in `App.vue`: `NConfigProvider`, `NMessageProvider`, etc.
+
+Use components directly in templates (no manual import needed). Prefer
+`n-*` kebab-case tags in templates (e.g. `<n-button>`, `<n-input>`).
+
+## Rules
+
+- **Buttons**: `NButton` — not plain `<button>` (except inside Naive wrappers if needed).
+- **Forms**: `NForm`, `NFormItem`, `NInput`, `NSelect`, `NCheckbox`, `NSwitch`, etc.
+- **Feedback**: `useMessage()`, `useDialog()`, `useNotification()`, `useLoadingBar()`.
+- **Layout**: `NSpace`, `NGrid`, `NLayout`, `NCard`, `NDivider`.
+- **Data display**: `NDataTable`, `NTag`, `NBadge`, `NEmpty`.
+- **Navigation**: `NMenu`, `NTabs`, `NBreadcrumb` (with Vue Router as needed).
+- **Overlays**: `NModal`, `NDrawer`, `NPopover`, `NTooltip` — not custom CSS modals.
+- **Icons**: `@vicons/*` packages when Naive UI examples use icons; match existing
+  project icon choices if any are added later.
+
+Tailwind CSS remains for page layout, spacing utilities, and one-off styling.
+Prefer Naive UI props and theme tokens for component appearance.
+
+## Examples
+
+### Good
+
+```vue
+<script setup lang="ts">
+const message = useMessage()
+
+function onSave() {
+  message.success('Saved')
+}
+</script>
+
+<template>
+  <n-card title="Settings">
+    <n-form>
+      <n-form-item label="Name">
+        <n-input placeholder="Your name" />
+      </n-form-item>
+    </n-form>
+    <n-space>
+      <n-button type="primary" @click="onSave">Save</n-button>
+      <n-button quaternary>Cancel</n-button>
+    </n-space>
+  </n-card>
+</template>
+```
+
+### Bad — avoid for new features
+
+```vue
+<template>
+  <button class="rounded bg-blue-500 px-4 py-2 text-white" @click="save">Save</button>
+  <input v-model="name" class="border p-2" />
+</template>
+```
+
+## Docs
+
+Component API and examples: https://www.naiveui.com/en-US/os-theme/components
